@@ -1,4 +1,4 @@
-import pygame, sys, time, json, pymunk
+import pygame, sys, time, json, pymunk, random
 
 from src.imgs import Cache, RotImg
 from src.utils import load_img, load_imgs
@@ -47,11 +47,11 @@ class App:
         pymunk.Body.update_velocity(body, gravity, damping * 0.5, dt)
     
     def init_box(self, box):
-        box.shape = self.physics_manager.add_box((13, 13), 50, pymunk.vec2d.Vec2d(box.pos.x, box.pos.y), box.angle)
+        box.shape = self.physics_manager.add_box((13, 13), 50, pymunk.vec2d.Vec2d(box.pos.x, box.pos.y), random.random() * 360)
         box.shape.body.velocity_func = App.damp_velocity
 
     def init_tree(self, tree):
-        tree.shape = self.physics_manager.add_box((13, 13), 50000, pymunk.vec2d.Vec2d(tree.pos.x, tree.pos.y), tree.angle)
+        tree.shape = self.physics_manager.add_box((13, 13), 50000, pymunk.vec2d.Vec2d(tree.pos.x, tree.pos.y), random.random() * 360)
         tree.shape.body.velocity_func = App.damp_velocity
 
     def init_player(self):
