@@ -1,4 +1,4 @@
-import pygame, sys, time, json, pymunk, random
+import pygame, sys, time, json, pymunk, random, asyncio
 
 from src.imgs import Cache, RotImg
 from src.utils import load_img, load_imgs, snip
@@ -13,6 +13,8 @@ from src.bip import TILE_SIZE
 class App:
     def __init__(self):
         self.display = pygame.display.set_mode((640, 640))
+        self.display.fill((100, 240, 100))
+        pygame.display.flip()
         self.screen = pygame.Surface((320, 320))
         self.time = 0
         self.dt = 1
@@ -158,7 +160,7 @@ class App:
                     for y in range(TILE_SIZE // 4):
                         self.add_leaf(pygame.Vector2(math.floor(pos.x / TILE_SIZE) * TILE_SIZE + x * 4, math.floor(pos.y / TILE_SIZE) * TILE_SIZE + y * 4))
     
-    def run(self):
+    async def run(self):
         while self.running:
             self.dt = time.time() - self.last_time
             self.dt *= 60
@@ -200,6 +202,12 @@ class App:
             pygame.display.set_caption(f'FPS: {self.clock.get_fps() :.1f}')
             pygame.display.flip()
             self.clock.tick()
+            await asyncio.sleep(0)
+
+async def main():
+    app = App()
+    await app.run()
+    await asyncio.sleep(0)
 
 if __name__ == '__main__':
-    App().run()
+    asyncio.run(main())
