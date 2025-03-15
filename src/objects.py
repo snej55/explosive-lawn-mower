@@ -44,6 +44,7 @@ class ObjectChunks:
                 target_chunk = f'{target_x};{target_y}'
                 if target_chunk in self.chunks:
                     for obj in self.chunks[target_chunk]:
+                        obj.update()
                         obj.draw(surf, scroll)
 
 class Object(SpriteStack):
@@ -66,6 +67,9 @@ class Object(SpriteStack):
         pos += self.rot_offset
         pos += self.app.player.pos # self.layers
         return pos - scroll
+    
+    def update(self):
+        pass
 
     def draw(self, surf, scroll, loc=None):
         if loc:
@@ -90,3 +94,12 @@ class Box(Object):
         self.offset = pygame.Vector2(self.padding, self.padding)
         self.shadow_offset = pygame.Vector2(-4, -4)
         self.rot_offset = pygame.Vector2(-5, -5)
+
+        self.body = None
+        self.shape = None
+    
+    def update(self):
+        super().update()
+        # self.shape.body.apply_impulse_at_local_point(0.5 * -self.shape.body.velocity, (0, 0))
+        self.pos = pygame.Vector2(list(self.shape.body.position)) + pygame.Vector2(-6, -5)
+        self.angle = -math.degrees(self.shape.body.angle)

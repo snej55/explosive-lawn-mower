@@ -34,9 +34,20 @@ class App:
         self.levels = LevelLoader(self, [50, 50])
         self.levels.load_level(self.assets['dirt_0'], 'dirt_0')
 
+        self.box = Box("box_0", self, (100, 100), [13, 13])
+        self.init_box(self.box)
+
         self.object_chunks = None
         self.load_level("data/maps/0.json")
     
+    @staticmethod
+    def damp_velocity(body, gravity, damping, dt):
+        pymunk.Body.update_velocity(body, gravity, damping * 0.5, dt)
+    
+    def init_box(self, box):
+        box.shape = self.physics_manager.add_box((13, 13), 50, pymunk.vec2d.Vec2d(box.pos.x, box.pos.y), box.angle)
+        box.shape.body.velocity_func = App.damp_velocity
+
     def init_player(self):
         self.player.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
         self.player.body.friction = 0.0
@@ -54,6 +65,7 @@ class App:
                 objects.append(Tree("tree_0", self, tree["pos"], [24, 24]))
             for box in level_data["boxes"]:
                 objects.append(Box("box_0", self, box["pos"], [13, 13]))
+                self.init_box(objects[-1])
 
             self.object_chunks = ObjectChunks(objects, (50, 50), self)
 
@@ -78,6 +90,8 @@ class App:
         self.physics_manager.draw(self.screen)
         self.levels.draw(self.screen, self.scroll, self.camera_angle, 'dirt_0')
         self.player.draw(self.screen, self.scroll)
+        self.box.update()
+        self.box.draw(self.screen, render_scroll)
 
         self.object_chunks.draw(self.screen, render_scroll)
     

@@ -55,7 +55,7 @@ class Player:
 
         self.shape.body.velocity = pymunk.vec2d.Vec2d(
             self.pos.x + self.dimensions.x / 2 - self.shape.body.position.x,
-            self.pos.y + self.dimensions.y / 2 - self.shape.body.position.y
+            self.pos.y + 5 - self.shape.body.position.y
         )
         self.shape.body.angle = math.radians(-self.angle)
         

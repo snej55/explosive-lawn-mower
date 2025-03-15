@@ -17,6 +17,7 @@ class LevelLoader:
                 key = f'{x};{y}'
                 level_data[key] = snip(level_img, [x * self.chunk_size[0], y * self.chunk_size[1]], self.chunk_size)
                 level_data[key].set_colorkey((0, 0, 0))
+                print(f"loaded chunk {key}")
         self.levels[name] = level_data
         return level_data
 
