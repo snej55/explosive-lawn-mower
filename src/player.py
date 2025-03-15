@@ -39,7 +39,7 @@ class Player:
         if self.controls['brake']:
             self.movement += (self.movement * 0.95 - self.movement) * self.app.dt
             self.turning += (self.turning * 0.9 - self.turning) * self.app.dt
-        self.movement = min(max(-5, self.movement), 5)
+        self.movement = min(max(-1, self.movement), 1)
         if self.controls['left']:
             self.turning += 0.05 * self.app.dt
         if self.controls['right']:
@@ -52,7 +52,6 @@ class Player:
         self.target_motion.y = -math.sin(math.radians(self.angle + 90)) * self.movement
         self.motion += (self.target_motion - self.motion) * self.friction * self.app.dt
         self.pos += self.motion * self.app.dt
-
         self.shape.body.velocity = pymunk.vec2d.Vec2d(
             self.pos.x + self.dimensions.x / 2 - self.shape.body.position.x,
             self.pos.y + 5 - self.shape.body.position.y

@@ -1,7 +1,7 @@
 import pygame, sys, time, json, pymunk, random
 
 from src.imgs import Cache, RotImg
-from src.utils import load_img, load_imgs
+from src.utils import load_img, load_imgs, snip
 from src.player import Player
 from src.objects import Tree
 from src.level import LevelLoader
@@ -23,7 +23,8 @@ class App:
                        'tree_0': [load_img('tree_0.png')],
                        'box_0': [load_img('box.png')],
                        'dirt_0': load_img('grass.png'),
-                       'light': load_img('light.png')}
+                       'light': load_img('light.png'),
+                       'leaf': load_img('leaf.png')}
         filt = pygame.Surface(self.assets['light'].get_size())
         filt.fill((0, 0, 0))
         filt.set_alpha(200)
@@ -53,14 +54,36 @@ class App:
         for x in range(int(self.assets["dirt_0"].get_width() / TILE_SIZE)):
             for y in range(int(self.assets["dirt_0"].get_height() / TILE_SIZE)):
                 self.grass_locs.append(f"{x};{y}")
-        print(f"{len(self.grass_locs)} blades of grass")
+        print(f"{len(self.grass_locs) * 64} blades of grass")
         
         self.grass_img = load_img("grass_blades.png")
         self.grass_manager = GrassManager(self.grass_locs, self.grass_img)
+
+        self.leaf_anim = [snip(self.assets['leaf'], (8 * x, 0), (8, 8)) for x in range(17)]
+        self.leaves = []
+
+        self.revving = False
     
     @staticmethod
     def damp_velocity(body, gravity, damping, dt):
         pymunk.Body.update_velocity(body, gravity, damping * 0.5, dt)
+    
+    def add_leaf(self, pos):
+        # xy pos, vel, height, frame
+        self.leaves.append([pos, [random.random() - 0.5, -random.random()], random.random() * 20, random.randint(0, 2)])
+    
+    def update_leaves(self, scroll):
+        for i, leaf in sorted(enumerate(self.leaves), reverse=True):
+            leaf[0][0] += leaf[1][0] * self.dt
+            leaf[2] += leaf[1][1] * self.dt
+            leaf[0][0] += math.sin(leaf[3] * 0.035) * 0.3 * self.dt
+            leaf[1][1] = min(0.2, leaf[1][1] + 0.005 * self.dt)
+            leaf[3] += 0.2 * self.dt
+            if leaf[3] >= 17:
+                self.leaves.pop(i)
+            else:
+                self.screen.blit(self.leaf_anim[math.floor(leaf[3])], (leaf[0][0] - scroll[0], leaf[0][1] - leaf[2] - scroll[1]))
+                # self.screen.blit(self.leaf_anim[math.floor(leaf[3])], (leaf[0][0] - scroll[0], leaf[0][1] - scroll[1]), special_flags=pygame.BLEND_RGBA_SUB)
     
     def init_box(self, box):
         box.shape = self.physics_manager.add_box((13, 13), 50, pymunk.vec2d.Vec2d(box.pos.x, box.pos.y), random.random() * 360)
@@ -119,8 +142,21 @@ class App:
         self.box.draw(self.screen, render_scroll)
         self.tree.update()
         self.tree.draw(self.screen, render_scroll)
-
         self.object_chunks.draw(self.screen, render_scroll)
+        if self.revving:
+            self.check_to_destroy()
+        self.update_leaves(render_scroll)
+    
+    def check_to_destroy(self):
+        for offset in [(-1, 0), (0, 0), (1, 0), (-1, 1), (0, 1), (1, 1), (-1, -1), (0, -1), (1, -1)]:
+            pos = pygame.Vector2(self.player.pos.x + self.player.dimensions.x / 2 + offset[0] * TILE_SIZE, 
+                                 self.player.pos.y + self.player.dimensions.y / 2 + offset[1] * TILE_SIZE)
+            loc = f"{math.floor(pos.x / TILE_SIZE)};{math.floor(pos.y / TILE_SIZE)}"
+            if loc in self.grass_manager.grass_tiles:
+                del self.grass_manager.grass_tiles[loc]
+                for x in range(TILE_SIZE // 4):
+                    for y in range(TILE_SIZE // 4):
+                        self.add_leaf(pygame.Vector2(math.floor(pos.x / TILE_SIZE) * TILE_SIZE + x * 4, math.floor(pos.y / TILE_SIZE) * TILE_SIZE + y * 4))
     
     def run(self):
         while self.running:
@@ -144,6 +180,8 @@ class App:
                         self.player.controls['up'] = True
                     if event.key == pygame.K_DOWN:
                         self.player.controls['down'] = True
+                    if event.key == pygame.K_r:
+                        self.revving = True
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         self.player.controls['brake'] = False
@@ -155,6 +193,8 @@ class App:
                         self.player.controls['up'] = False
                     if event.key == pygame.K_DOWN:
                         self.player.controls['down'] = False
+                    if event.key == pygame.K_r:
+                        self.revving = False
             self.update()
             pygame.transform.scale(self.screen, self.display.get_size(), self.display)
             pygame.display.set_caption(f'FPS: {self.clock.get_fps() :.1f}')

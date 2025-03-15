@@ -21,7 +21,9 @@ class App:
         self.assets = {'car_0': load_img('car.png'),
                        'tree_0': [load_img('tree_0.png')],
                        'box_0': [load_img('box.png')],
-                       'dirt_0': load_img('grass.png')}
+                       'dirt_0': load_img('grass.png'),
+                       'light': load_img('light.png'),
+                       'leaf': load_img('leaf.png')}
         self.cache = Cache(self)
         self.physics_manager = PhysicsManager()
         self.player = Player(self, (941, 411))

@@ -5,7 +5,7 @@ from .utils import snip
 
 from copy import deepcopy
 
-DENSITY = 3
+DENSITY = 4
 PADDING = 16
 ACCURACY = 1
 THRESHOLD = 30 # distance from which cached values are used

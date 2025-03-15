@@ -90,6 +90,8 @@ class Object(SpriteStack):
             self.pos = pygame.Vector2(loc)
         pos = self.transform(scroll)
         shadow = self.get_shadow(self.angle - self.app.camera_angle)
+        surf.blit(pygame.transform.scale(self.app.assets['light'], (50, 50)), (pos[0] - self.shadow_offset[0] - 25, pos[1] - self.shadow_offset[1] - 25), special_flags=pygame.BLEND_RGBA_SUB)
+        # surf.blit(pygame.transform.scale(self.app.assets['light'], (50, 50)), (pos[0] - 17 - scroll[0], pos[1] - 22 - scroll[1]), special_flags=pygame.BLEND_RGBA_SUB)
         surf.blit(shadow, (pos[0] - shadow.get_width() // 2 - self.shadow_offset[0], pos[1] - shadow.get_height() // 2 - self.shadow_offset[1]))
         surf.blit(self.get_img(self.angle - self.app.camera_angle), (pos[0] - self.offset[0], pos[1] - self.offset[1]))
         #surf.set_at((self.app.player.pos - scroll), (0, 0, 255))
