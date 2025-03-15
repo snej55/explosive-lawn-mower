@@ -1,10 +1,11 @@
-import pygame, sys, time, json
+import pygame, sys, time, json, pymunk
 
 from src.imgs import Cache, RotImg
 from src.utils import load_img, load_imgs
 from src.player import Player
 from src.objects import Tree, Box
 from src.level import LevelLoader
+from src.space import PhysicsManager
 
 MAP_PATH = "data/maps/0.json"
 
@@ -22,7 +23,9 @@ class App:
                        'box_0': [load_img('box.png')],
                        'dirt_0': load_img('grass.png')}
         self.cache = Cache(self)
+        self.physics_manager = PhysicsManager()
         self.player = Player(self, (941, 411))
+        self.init_player()
         self.scroll = pygame.Vector2(0, 0)
         self.camera_angle = 0
         self.levels = LevelLoader(self, [50, 50])
@@ -42,6 +45,27 @@ class App:
         ]
 
         self.mode = 0
+    
+    @staticmethod
+    def damp_velocity(body, gravity, damping, dt):
+        pymunk.Body.update_velocity(body, gravity, damping * 0.5, dt)
+    
+    def init_box(self, box):
+        box.shape = self.physics_manager.add_box((13, 13), 50, pymunk.vec2d.Vec2d(box.pos.x, box.pos.y), box.angle)
+        box.shape.body.velocity_func = App.damp_velocity
+
+    def init_tree(self, tree):
+        tree.shape = self.physics_manager.add_box((13, 13), 50000, pymunk.vec2d.Vec2d(tree.pos.x, tree.pos.y), tree.angle)
+        tree.shape.body.velocity_func = App.damp_velocity
+
+    def init_player(self):
+        self.player.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
+        self.player.body.friction = 0.0
+        self.player.body.position = list(self.player.pos)
+        self.player.body.angle = self.player.angle
+
+        self.player.shape = pymunk.Poly.create_box(self.player.body, tuple(self.player.dimensions), 0.0)
+        self.physics_manager.space.add(self.player.shape, self.player.shape.body)
 
     def load_map(self, path):
         with open(path, 'r') as f:

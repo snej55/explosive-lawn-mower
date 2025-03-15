@@ -33,6 +33,20 @@ class PhysicsManager:
         self.space.add(shape)
 
         return shape
+
+    def add_circle(self, readius, mass, pos: Vec2d, angle):
+        body = pymunk.Body()
+        self.space.add(body)
+
+        body.position = pos
+        body.angle = angle
+
+        shape = pymunk.Circle(body, readius, (0, 0))
+        shape.mass = mass
+        shape.friction = FRICTION
+        self.space.add(shape)
+
+        return shape
     
     def update(self, time_step):
         # update bodies

@@ -24,7 +24,7 @@ class App:
         self.physics_manager = PhysicsManager()
         # self.physics_manager.add_box((20, 20), 40, (50, 50), 30)
         self.cache = Cache(self)
-        self.player = Player(self, (50, 50))#(941, 411))
+        self.player = Player(self, (941, 411))
         self.init_player()
         # self.player.init(self.physics_manager)
         # self.player.shape = self.physics_manager.add_box(tuple(self.player.dimensions), 50, tuple(self.player.pos), self.player.angle)
@@ -35,7 +35,9 @@ class App:
         self.levels.load_level(self.assets['dirt_0'], 'dirt_0')
 
         self.box = Box("box_0", self, (100, 100), [13, 13])
+        self.tree = Tree("tree_0", self, (200, 200), [24, 24])
         self.init_box(self.box)
+        self.init_tree(self.tree)
 
         self.object_chunks = None
         self.load_level("data/maps/0.json")
@@ -47,6 +49,10 @@ class App:
     def init_box(self, box):
         box.shape = self.physics_manager.add_box((13, 13), 50, pymunk.vec2d.Vec2d(box.pos.x, box.pos.y), box.angle)
         box.shape.body.velocity_func = App.damp_velocity
+
+    def init_tree(self, tree):
+        tree.shape = self.physics_manager.add_box((13, 13), 50000, pymunk.vec2d.Vec2d(tree.pos.x, tree.pos.y), tree.angle)
+        tree.shape.body.velocity_func = App.damp_velocity
 
     def init_player(self):
         self.player.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
@@ -63,6 +69,7 @@ class App:
             objects = []
             for tree in level_data["trees"]:
                 objects.append(Tree("tree_0", self, tree["pos"], [24, 24]))
+                self.init_tree(objects[-1])
             for box in level_data["boxes"]:
                 objects.append(Box("box_0", self, box["pos"], [13, 13]))
                 self.init_box(objects[-1])
@@ -79,19 +86,21 @@ class App:
         self.player.update()
         self.scroll[0] += ((self.player.pos[0] - self.screen.get_width() * 0.5 - self.scroll[0])) * self.dt
         self.scroll[1] += ((self.player.pos[1] - self.screen.get_height() * 0.5 - self.scroll[1])) * self.dt
-        self.scroll = pygame.Vector2(0, 0)
+        # self.scroll = pygame.Vector2(0, 0)
         render_scroll = self.scroll.copy()
         render_scroll[0] = int(render_scroll[0])
         render_scroll[1] = int(render_scroll[1])
         # self.camera_angle += (self.player.angle - self.camera_angle) * 0.1 * self.dt
         self.time += 1 * self.dt
         self.physics_manager.update(self.dt)
-        self.physics_manager.set_draw_options(self.screen)
-        self.physics_manager.draw(self.screen)
+        # self.physics_manager.set_draw_options(self.screen)
+        # self.physics_manager.draw(self.screen)
         self.levels.draw(self.screen, self.scroll, self.camera_angle, 'dirt_0')
         self.player.draw(self.screen, self.scroll)
         self.box.update()
         self.box.draw(self.screen, render_scroll)
+        self.tree.update()
+        self.tree.draw(self.screen, render_scroll)
 
         self.object_chunks.draw(self.screen, render_scroll)
     

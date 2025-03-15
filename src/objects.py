@@ -37,6 +37,8 @@ class ObjectChunks:
                         yield obj
     
     def draw(self, surf, scroll):
+        boxes = []
+        trees = []
         for y in range(math.ceil(surf.get_height() / (self.chunk_size[1] * TILE_SIZE)) + 1):
             for x in range(math.ceil(surf.get_width() / (self.chunk_size[0] * TILE_SIZE)) + 1):
                 target_x = x - 1 + math.ceil(scroll.x / (self.chunk_size[0] * TILE_SIZE))
@@ -44,8 +46,20 @@ class ObjectChunks:
                 target_chunk = f'{target_x};{target_y}'
                 if target_chunk in self.chunks:
                     for obj in self.chunks[target_chunk]:
-                        obj.update()
-                        obj.draw(surf, scroll)
+                        if obj.name == "box_0":
+                            boxes.append(obj)
+                        elif obj.name == "tree_0":
+                            trees.append(obj)
+
+        boxes.sort(key=lambda x: x.pos[y] + x.offset.y)
+        for obj in boxes:
+            obj.update()
+            obj.draw(surf, scroll)
+
+        trees.sort(key=lambda x: x.pos[y] + x.offset.y)
+        for obj in trees:
+            obj.update()
+            obj.draw(surf, scroll)
 
 class Object(SpriteStack):
     def __init__(self, name, app, pos, dim, spread=1, accuracy=2, padding=13, angle=0, variant=0):
@@ -87,6 +101,15 @@ class Tree(Object):
         self.offset = pygame.Vector2(self.padding, self.padding)
         self.shadow_offset = pygame.Vector2(-self.padding * 0.72, -self.padding * 2)
         self.rot_offset = pygame.Vector2(-10, -32)
+
+        self.body = None
+        self.shape = None
+    
+    def update(self):
+        super().update()
+        # self.shape.body.apply_impulse_at_local_point(0.5 * -self.shape.body.velocity, (0, 0))
+        self.pos = pygame.Vector2(list(self.shape.body.position)) + pygame.Vector2(-12, -24)
+        self.angle = -math.degrees(self.shape.body.angle)
 
 class Box(Object):
     def __init__(self, *args, **kwargs):
