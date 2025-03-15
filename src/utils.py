@@ -8,9 +8,7 @@ def render_stack(surf, images, pos, rotation, spread=1):
         surf.blit(rotated_img, (pos[0] - rotated_img.get_width() // 2, pos[1] - rotated_img.get_height() // 2 + i * spread))
 
 def snip(spritesheet, pos, dimensions):
-    # handle_surf = spritesheet.copy()
     clip_rect = pygame.Rect(pos, dimensions)
-    # handle_surf.set_clip(clip_rect)
     image = spritesheet.subsurface(clip_rect)
     return image.copy()
 

@@ -12,12 +12,15 @@ class LevelLoader:
     def load_level(self, img, name):
         level_img = img.convert()
         level_data = {}
+        filt = pygame.Surface(self.chunk_size)
+        filt.fill((0, 0, 0))
+        filt.set_alpha(0)
         for y in range(math.ceil(level_img.get_height() / self.chunk_size[1])):
             for x in range(math.ceil(level_img.get_width() / self.chunk_size[0])):
                 key = f'{x};{y}'
                 level_data[key] = snip(level_img, [x * self.chunk_size[0], y * self.chunk_size[1]], self.chunk_size)
+                level_data[key].blit(filt, (0, 0))
                 level_data[key].set_colorkey((0, 0, 0))
-                print(f"loaded chunk {key}")
         self.levels[name] = level_data
         return level_data
 

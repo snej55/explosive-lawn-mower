@@ -7,6 +7,7 @@ from src.objects import Tree
 from src.level import LevelLoader
 from src.objects import *
 from src.space import PhysicsManager
+from src.grass import GrassManager
 
 class App:
     def __init__(self):
@@ -24,7 +25,7 @@ class App:
         self.physics_manager = PhysicsManager()
         # self.physics_manager.add_box((20, 20), 40, (50, 50), 30)
         self.cache = Cache(self)
-        self.player = Player(self, (941, 411))
+        self.player = Player(self, (50, 50))#, (941, 411))
         self.init_player()
         # self.player.init(self.physics_manager)
         # self.player.shape = self.physics_manager.add_box(tuple(self.player.dimensions), 50, tuple(self.player.pos), self.player.angle)
@@ -41,6 +42,14 @@ class App:
 
         self.object_chunks = None
         self.load_level("data/maps/0.json")
+
+        self.grass_locs = []
+        for x in range(50):
+            for y in range(50):
+                self.grass_locs.append(f"{x};{y}")
+        
+        self.grass_img = load_img("grass_blades.png")
+        self.grass_manager = GrassManager(self.grass_locs, self.grass_img)
     
     @staticmethod
     def damp_velocity(body, gravity, damping, dt):
@@ -96,6 +105,7 @@ class App:
         # self.physics_manager.set_draw_options(self.screen)
         # self.physics_manager.draw(self.screen)
         self.levels.draw(self.screen, self.scroll, self.camera_angle, 'dirt_0')
+        self.grass_manager.render(pygame.Rect(self.player.pos.x, self.player.pos.y, 14, 14), self.dt, self.screen, render_scroll)
         self.player.draw(self.screen, self.scroll)
         self.box.update()
         self.box.draw(self.screen, render_scroll)
