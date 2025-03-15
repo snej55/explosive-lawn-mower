@@ -1,3 +1,3 @@
-# SpriteStacks
+# Explosive Lawn Mower Simulator
 
-Doing some stuff with spritestacks and pygame
+This project is an overengineered lawn mower simulator.
