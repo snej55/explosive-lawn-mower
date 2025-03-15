@@ -6,7 +6,7 @@ class Player:
     def __init__(self, app, pos):
         self.app = app
         self.pos = pygame.Vector2(pos)
-        self.car = SpriteStack(app, pos, self.app.assets['car_0'], (9, 11), 'car_0', 1, 2, 13) #app, pos, sheet, dim, name, spread, accuracy, padding, variant=0
+        self.car = SpriteStack(app, pos, self.app.assets['car_0'], (14, 17), 'car_0', 1, 2, 14) #app, pos, sheet, dim, name, spread, accuracy, padding, variant=0
         self.movement = 0
         self.target_motion = pygame.Vector2(0, 0)
         self.motion = pygame.Vector2(0, 0)

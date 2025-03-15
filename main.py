@@ -16,7 +16,7 @@ class App:
         self.clock = pygame.time.Clock()
         self.running = True
         self.assets = {'car_0': load_img('lawn_mower.png'),
-                       'tree_0': load_img('tree_0.png'),
+                       'tree_0': [load_img('tree_0.png')],
                        'dirt_0': load_img('grass.png')}
         self.cache = Cache(self)
         self.player = Player(self, (941, 411))
