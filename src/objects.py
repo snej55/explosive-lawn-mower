@@ -83,3 +83,10 @@ class Tree(Object):
         self.offset = pygame.Vector2(self.padding, self.padding)
         self.shadow_offset = pygame.Vector2(-self.padding * 0.72, -self.padding * 2)
         self.rot_offset = pygame.Vector2(-10, -32)
+
+class Box(Object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.offset = pygame.Vector2(self.padding, self.padding)
+        self.shadow_offset = pygame.Vector2(-4, -4)
+        self.rot_offset = pygame.Vector2(-5, -5)

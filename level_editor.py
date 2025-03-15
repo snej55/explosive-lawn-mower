@@ -3,7 +3,7 @@ import pygame, sys, time, json
 from src.imgs import Cache, RotImg
 from src.utils import load_img, load_imgs
 from src.player import Player
-from src.objects import Tree
+from src.objects import Tree, Box
 from src.level import LevelLoader
 
 MAP_PATH = "data/maps/0.json"
@@ -19,6 +19,7 @@ class App:
         self.running = True
         self.assets = {'car_0': load_img('car.png'),
                        'tree_0': [load_img('tree_0.png')],
+                       'box_0': [load_img('box.png')],
                        'dirt_0': load_img('grass.png')}
         self.cache = Cache(self)
         self.player = Player(self, (941, 411))
@@ -27,7 +28,8 @@ class App:
         self.levels = LevelLoader(self, [50, 50])
         self.levels.load_level(self.assets['dirt_0'], 'dirt_0')
 
-        self.tree = Tree("tree_0", self, (50, 50), [24, 24], )
+        self.tree = Tree("tree_0", self, (50, 50), [24, 24])
+        self.box = Box("box_0", self, (50, 50), [13, 13])
 
         self.level_data = {}
         self.load_map(MAP_PATH)
@@ -66,6 +68,8 @@ class App:
         for item in items:
             if item["type"] == "tree":
                 self.tree.draw(self.screen, self.scroll, item["pos"])
+            if item["type"] == "box":
+                self.box.draw(self.screen, self.scroll, item["pos"])
 
     def update(self):
         self.player.update()
@@ -91,6 +95,8 @@ class App:
         
         if self.get_mode() == "tree":
             self.tree.draw(self.screen, self.scroll, mouse_pos)
+        if self.get_mode() == "box":
+            self.box.draw(self.screen, self.scroll, mouse_pos)
     
     def get_mode(self):
         return self.modes[self.mode]
@@ -142,6 +148,8 @@ class App:
                         
                         if self.get_mode() == "tree":
                             self.level_data["trees"].append({"pos": list(mouse_pos)})
+                        elif self.get_mode() == "box":
+                            self.level_data["boxes"].append({"pos": list(mouse_pos)})
 
             self.update()
             pygame.transform.scale(self.screen, self.display.get_size(), self.display)
