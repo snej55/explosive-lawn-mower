@@ -10,6 +10,8 @@ from src.space import PhysicsManager
 from src.grass import GrassManager
 from src.bip import TILE_SIZE
 
+pygame.mixer.init()
+
 SMOKE_DELAY = 100
 FADE = 4
 
@@ -105,6 +107,9 @@ class App:
 
         self.screen_shake = 0.0
         self.smoke = []
+
+        pygame.mixer.music.load("data/audio/ben.wav")
+        pygame.mixer.music.play(-1)
     
     @staticmethod
     def damp_velocity(body, gravity, damping, dt):
@@ -178,7 +183,7 @@ class App:
         self.physics_manager.update(self.dt)
         # self.physics_manager.set_draw_options(self.screen)
         # self.physics_manager.draw(self.screen)
-        self.levels.draw(self.screen, self.scroll, self.camera_angle, 'dirt_0')
+        self.levels.draw(self.screen, render_scroll, self.camera_angle, 'dirt_0')
         self.grass_manager.render(pygame.Rect(self.player.pos.x, self.player.pos.y, 14, 14), self.dt, self.screen, render_scroll)
         self.screen.blit(pygame.transform.scale(self.assets['light'], (50, 50)), (self.player.pos.x - 17 - render_scroll[0], self.player.pos.y - 22 - render_scroll[1]), special_flags=pygame.BLEND_RGBA_SUB)
         self.player.draw(self.screen, self.scroll)
