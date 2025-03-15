@@ -1,4 +1,4 @@
-import pygame, sys, time, json
+import pygame, sys, time, json, pymunk
 
 from src.imgs import Cache, RotImg
 from src.utils import load_img, load_imgs
@@ -6,6 +6,7 @@ from src.player import Player
 from src.objects import Tree
 from src.level import LevelLoader
 from src.objects import *
+from src.space import PhysicsManager
 
 class App:
     def __init__(self):
@@ -20,8 +21,14 @@ class App:
                        'tree_0': [load_img('tree_0.png')],
                        'box_0': [load_img('box.png')],
                        'dirt_0': load_img('grass.png')}
+        self.physics_manager = PhysicsManager()
+        # self.physics_manager.add_box((20, 20), 40, (50, 50), 30)
         self.cache = Cache(self)
-        self.player = Player(self, (941, 411))
+        self.player = Player(self, (50, 50))#(941, 411))
+        self.init_player()
+        # self.player.init(self.physics_manager)
+        # self.player.shape = self.physics_manager.add_box(tuple(self.player.dimensions), 50, tuple(self.player.pos), self.player.angle)
+        # self.physics_manager.space.add(self.player.shape.body, self.player.shape)
         self.scroll = pygame.Vector2(0, 0)
         self.camera_angle = 0
         self.levels = LevelLoader(self, [50, 50])
@@ -29,6 +36,15 @@ class App:
 
         self.object_chunks = None
         self.load_level("data/maps/0.json")
+    
+    def init_player(self):
+        self.player.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
+        self.player.body.friction = 0.0
+        self.player.body.position = list(self.player.pos)
+        self.player.body.angle = self.player.angle
+
+        self.player.shape = pymunk.Poly.create_box(self.player.body, tuple(self.player.dimensions), 0.0)
+        self.physics_manager.space.add(self.player.shape, self.player.shape.body)
 
     def load_level(self, path):
         with open(path, 'r') as f:
@@ -51,11 +67,15 @@ class App:
         self.player.update()
         self.scroll[0] += ((self.player.pos[0] - self.screen.get_width() * 0.5 - self.scroll[0])) * self.dt
         self.scroll[1] += ((self.player.pos[1] - self.screen.get_height() * 0.5 - self.scroll[1])) * self.dt
+        self.scroll = pygame.Vector2(0, 0)
         render_scroll = self.scroll.copy()
         render_scroll[0] = int(render_scroll[0])
         render_scroll[1] = int(render_scroll[1])
         # self.camera_angle += (self.player.angle - self.camera_angle) * 0.1 * self.dt
         self.time += 1 * self.dt
+        self.physics_manager.update(self.dt)
+        self.physics_manager.set_draw_options(self.screen)
+        self.physics_manager.draw(self.screen)
         self.levels.draw(self.screen, self.scroll, self.camera_angle, 'dirt_0')
         self.player.draw(self.screen, self.scroll)
 

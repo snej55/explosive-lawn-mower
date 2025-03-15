@@ -1,6 +1,7 @@
-import math, pygame
+import math, pygame, pymunk
 
 from .stacked_sprite import SpriteStack
+from .space import PhysicsManager
 
 class Player:
     def __init__(self, app, pos):
@@ -18,6 +19,15 @@ class Player:
         self.turning = 0
         self.angle = 0
         self.speed = 0.02
+
+        self.dimensions = pygame.Vector2(14, 17)
+
+        self.body = None
+        self.shape = None
+    
+    @staticmethod
+    def damp_velocity(body, gravity, damping, dt):
+        pymunk.Body.update_velocity(body, gravity, damping * 0.5, dt)
 
     def update(self):
         if self.controls['up']:
@@ -42,6 +52,12 @@ class Player:
         self.target_motion.y = -math.sin(math.radians(self.angle + 90)) * self.movement
         self.motion += (self.target_motion - self.motion) * self.friction * self.app.dt
         self.pos += self.motion * self.app.dt
+
+        self.shape.body.velocity = pymunk.vec2d.Vec2d(
+            self.pos.x + self.dimensions.x / 2 - self.shape.body.position.x,
+            self.pos.y + self.dimensions.y / 2 - self.shape.body.position.y
+        )
+        self.shape.body.angle = math.radians(-self.angle)
         
     def draw(self, surf, scroll=(0, 0)):
         shadow = self.car.get_shadow(self.angle + 180 - self.app.camera_angle)
