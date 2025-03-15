@@ -8,6 +8,7 @@ from src.level import LevelLoader
 from src.objects import *
 from src.space import PhysicsManager
 from src.grass import GrassManager
+from src.bip import TILE_SIZE
 
 class App:
     def __init__(self):
@@ -21,7 +22,12 @@ class App:
         self.assets = {'car_0': load_img('car.png'),
                        'tree_0': [load_img('tree_0.png')],
                        'box_0': [load_img('box.png')],
-                       'dirt_0': load_img('grass.png')}
+                       'dirt_0': load_img('grass.png'),
+                       'light': load_img('light.png')}
+        filt = pygame.Surface(self.assets['light'].get_size())
+        filt.fill((0, 0, 0))
+        filt.set_alpha(200)
+        self.assets['light'].blit(filt, (0, 0))
         self.physics_manager = PhysicsManager()
         # self.physics_manager.add_box((20, 20), 40, (50, 50), 30)
         self.cache = Cache(self)
@@ -44,9 +50,10 @@ class App:
         self.load_level("data/maps/0.json")
 
         self.grass_locs = []
-        for x in range(50):
-            for y in range(50):
+        for x in range(int(self.assets["dirt_0"].get_width() / TILE_SIZE)):
+            for y in range(int(self.assets["dirt_0"].get_height() / TILE_SIZE)):
                 self.grass_locs.append(f"{x};{y}")
+        print(f"{len(self.grass_locs)} blades of grass")
         
         self.grass_img = load_img("grass_blades.png")
         self.grass_manager = GrassManager(self.grass_locs, self.grass_img)
@@ -106,6 +113,7 @@ class App:
         # self.physics_manager.draw(self.screen)
         self.levels.draw(self.screen, self.scroll, self.camera_angle, 'dirt_0')
         self.grass_manager.render(pygame.Rect(self.player.pos.x, self.player.pos.y, 14, 14), self.dt, self.screen, render_scroll)
+        self.screen.blit(pygame.transform.scale(self.assets['light'], (50, 50)), (self.player.pos.x - 17 - render_scroll[0], self.player.pos.y - 22 - render_scroll[1]), special_flags=pygame.BLEND_RGBA_SUB)
         self.player.draw(self.screen, self.scroll)
         self.box.update()
         self.box.draw(self.screen, render_scroll)

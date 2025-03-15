@@ -12,13 +12,13 @@ class Player:
         self.target_motion = pygame.Vector2(0, 0)
         self.motion = pygame.Vector2(0, 0)
         self.target_angle = 0
-        self.friction = 0.06
+        self.friction = 0.09
         self.turning = 0
         self.drifting = True
         self.controls = {'up': False, 'down': False, 'left': False, 'right': False, 'brake': False}
         self.turning = 0
         self.angle = 0
-        self.speed = 0.02
+        self.speed = 0.01
 
         self.dimensions = pygame.Vector2(14, 17)
 

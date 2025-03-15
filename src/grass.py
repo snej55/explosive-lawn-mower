@@ -140,10 +140,10 @@ class GrassManager:
             self.grass_tiles[loc] = GrassTile(pos, grass_img)
     
     def render(self, rect, dt, screen, scroll):
-        for y in range(math.ceil(screen.get_height() / TILE_SIZE) + 1):
-            for x in range(math.ceil(screen.get_width() / TILE_SIZE) + 1):
-                target_x = x - 1 + math.ceil(scroll.x / TILE_SIZE)
-                target_y = y - 1 + math.ceil(scroll.y / TILE_SIZE)
+        for y in range(math.ceil(screen.get_height() / TILE_SIZE) + 3):
+            for x in range(math.ceil(screen.get_width() / TILE_SIZE) + 3):
+                target_x = x - 2 + math.ceil(scroll.x / TILE_SIZE)
+                target_y = y - 2 + math.ceil(scroll.y / TILE_SIZE)
                 target_tile = f'{target_x};{target_y}'
                 if target_tile in self.grass_tiles:
                     self.grass_tiles[target_tile].render(rect, dt, screen, scroll)
