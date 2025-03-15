@@ -10,9 +10,46 @@ from src.space import PhysicsManager
 from src.grass import GrassManager
 from src.bip import TILE_SIZE
 
+SMOKE_DELAY = 100
+FADE = 4
+
+class Smoke:
+    def __init__(self, x, y, dx, dy):
+        self.x = x
+        self.y = y
+        self.dx = dx
+        self.dy = dy
+        self.size = 100
+        self.timer = 0
+        self.img = pygame.Surface((self.size, self.size))
+        pygame.draw.rect(self.img, (200, 200, 200), (1, 1, self.size - 2, self.size - 2))
+        self.img.set_colorkey((0, 0, 0))
+        self.img.convert_alpha()
+        self.target_angle = random.random() * 360 + 720
+        self.angle = 0
+        self.smoke = []
+    
+    @property
+    def pos(self):
+        return self.x, self.y
+    
+    def update(self, dt):
+        self.x += self.dx * dt
+        self.y += self.dy * dt
+        self.dx += (self.dx * 0.989 - self.dx) * dt
+        self.dy += (self.dy * 0.989 - self.dy) * dt
+        self.timer += 1 * dt
+        self.angle += (self.target_angle - self.angle) / 15 * dt
+    
+    def draw(self, surf, scroll=[0, 0]):
+        self.img.set_alpha(int(255 - 255 * self.timer / SMOKE_DELAY * FADE))
+        img_copy = pygame.transform.scale(pygame.transform.rotate(self.img, (self.angle)),
+                                          (1 + self.size * self.timer / SMOKE_DELAY, 1 + self.size * self.timer / SMOKE_DELAY)).convert_alpha()
+        surf.blit(img_copy, (self.x - scroll[0], self.y - scroll[1]))
+
 class App:
     def __init__(self):
-        self.display = pygame.display.set_mode((640, 640))
+        self.display = pygame.display.set_mode((640, 640), pygame.RESIZABLE)
         self.display.fill((100, 240, 100))
         pygame.display.flip()
         self.screen = pygame.Surface((320, 320))
@@ -65,6 +102,9 @@ class App:
         self.leaves = []
 
         self.revving = False
+
+        self.screen_shake = 0.0
+        self.smoke = []
     
     @staticmethod
     def damp_velocity(body, gravity, damping, dt):
@@ -129,8 +169,10 @@ class App:
         self.scroll[1] += ((self.player.pos[1] - self.screen.get_height() * 0.5 - self.scroll[1])) * self.dt
         # self.scroll = pygame.Vector2(0, 0)
         render_scroll = self.scroll.copy()
-        render_scroll[0] = int(render_scroll[0])
-        render_scroll[1] = int(render_scroll[1])
+        self.screen_shake = max(0, self.screen_shake - 1 * self.dt)
+
+        screen_shake_offset = (random.random() * self.screen_shake - self.screen_shake / 2, random.random() * self.screen_shake - self.screen_shake / 2)
+        render_scroll = pygame.Vector2(int(self.scroll[0] + screen_shake_offset[0]), int(self.scroll[1] + screen_shake_offset[1]))
         # self.camera_angle += (self.player.angle - self.camera_angle) * 0.1 * self.dt
         self.time += 1 * self.dt
         self.physics_manager.update(self.dt)
@@ -148,6 +190,11 @@ class App:
         if self.revving:
             self.check_to_destroy()
         self.update_leaves(render_scroll)
+        for i, bit in sorted(enumerate(self.smoke), reverse=True):
+            bit.update(self.dt)
+            if bit.timer > SMOKE_DELAY // FADE:
+                self.smoke.pop(i)
+            bit.draw(self.screen, render_scroll)
     
     def check_to_destroy(self):
         for offset in [(-1, 0), (0, 0), (1, 0), (-1, 1), (0, 1), (1, 1), (-1, -1), (0, -1), (1, -1)]:
@@ -156,8 +203,11 @@ class App:
             loc = f"{math.floor(pos.x / TILE_SIZE)};{math.floor(pos.y / TILE_SIZE)}"
             if loc in self.grass_manager.grass_tiles:
                 del self.grass_manager.grass_tiles[loc]
+                self.screen_shake = max(self.screen_shake, 16)
                 for x in range(TILE_SIZE // 4):
                     for y in range(TILE_SIZE // 4):
+                        if random.random() < 0.2:
+                            self.smoke.append(Smoke(math.floor(pos.x / TILE_SIZE) * TILE_SIZE + x * 4, math.floor(pos.y / TILE_SIZE) * TILE_SIZE + y * 4, random.randint(-1, 1), -1.1))
                         self.add_leaf(pygame.Vector2(math.floor(pos.x / TILE_SIZE) * TILE_SIZE + x * 4, math.floor(pos.y / TILE_SIZE) * TILE_SIZE + y * 4))
     
     async def run(self):
@@ -197,6 +247,9 @@ class App:
                         self.player.controls['down'] = False
                     if event.key == pygame.K_r:
                         self.revving = False
+                if event.type == pygame.VIDEORESIZE:
+                    self.screen = pygame.Surface((event.w // 2, event.h // 2))
+
             self.update()
             pygame.transform.scale(self.screen, self.display.get_size(), self.display)
             pygame.display.set_caption(f'FPS: {self.clock.get_fps() :.1f}')
