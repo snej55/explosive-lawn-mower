@@ -259,8 +259,8 @@ class App:
             pygame.transform.scale(self.screen, self.display.get_size(), self.display)
             pygame.display.set_caption(f'FPS: {self.clock.get_fps() :.1f}')
             pygame.display.flip()
-            self.clock.tick()
             await asyncio.sleep(0)
+            self.clock.tick()
 
 async def main():
     app = App()
