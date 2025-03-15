@@ -1,10 +1,11 @@
-import pygame, sys, time
+import pygame, sys, time, json
 
 from src.imgs import Cache, RotImg
 from src.utils import load_img, load_imgs
 from src.player import Player
 from src.objects import Tree
 from src.level import LevelLoader
+from src.objects import *
 
 class App:
     def __init__(self):
@@ -15,8 +16,9 @@ class App:
         self.last_time = time.time() - 1 / 60
         self.clock = pygame.time.Clock()
         self.running = True
-        self.assets = {'car_0': load_img('lawn_mower.png'),
-                       'tree_0': load_img('tree_0.png'),
+        self.assets = {'car_0': load_img('car.png'),
+                       'tree_0': [load_img('tree_0.png')],
+                       'box_0': [load_img('box.png')],
                        'dirt_0': load_img('grass.png')}
         self.cache = Cache(self)
         self.player = Player(self, (941, 411))
@@ -24,6 +26,20 @@ class App:
         self.camera_angle = 0
         self.levels = LevelLoader(self, [50, 50])
         self.levels.load_level(self.assets['dirt_0'], 'dirt_0')
+
+        self.object_chunks = None
+        self.load_level("data/maps/0.json")
+
+    def load_level(self, path):
+        with open(path, 'r') as f:
+            level_data = json.load(f)
+            objects = []
+            for tree in level_data["trees"]:
+                objects.append(Tree("tree_0", self, tree["pos"], [24, 24]))
+            for box in level_data["boxes"]:
+                objects.append(Box("box_0", self, box["pos"], [13, 13]))
+
+            self.object_chunks = ObjectChunks(objects, (50, 50), self)
 
     def close(self):
         self.running = False
@@ -42,6 +58,8 @@ class App:
         self.time += 1 * self.dt
         self.levels.draw(self.screen, self.scroll, self.camera_angle, 'dirt_0')
         self.player.draw(self.screen, self.scroll)
+
+        self.object_chunks.draw(self.screen, render_scroll)
     
     def run(self):
         while self.running:
