@@ -25,3 +25,7 @@ python3 main.py
 Arrow keys 
 
 R to mow the lawn
+
+## DISCLAIMER:
+
+This project was developed with a (relatively) beefy computer. If yours isn't, it might struggle to render all of the grass. If it does struggle, try decreasing the `DENSITY` value in `src/grass.py` (or experiment with `TILE_SIZE` in `src/bip.py`).
