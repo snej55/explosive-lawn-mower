@@ -2,6 +2,8 @@
 
 This project is an overengineered lawn mower simulator.
 
+![screenshot](https://github.com/snej55/explosive-lawn-mower/blob/master/screenshot0.png)
+
 ## Play (Easy):
 
 You can download the compiled binary from here: [ELMS Compiled](https://github.com/snej55/exploding_lawn_mower_compiled)
