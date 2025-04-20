@@ -2,7 +2,7 @@
 
 This project is an overengineered lawn mower simulator.
 
-![screenshot]([https://github.com/snej55/explosive-lawn-mower/blob/master/screenshot0.png](https://github.com/snej55/explosive-lawn-mower/blob/master/Screenshot%202025-03-15%20194840.png))
+![https://github.com/snej55/explosive-lawn-mower/blob/master/screenshot0.png](https://github.com/snej55/explosive-lawn-mower/blob/master/Screenshot%202025-03-15%20194840.png)
 
 ## Play (Easy):
 
