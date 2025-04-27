@@ -1,8 +1,12 @@
 # Explosive Lawn Mower Simulator
 
-This project is an overengineered lawn mower simulator.
+This project is an overengineered lawn mower simulator. It was made for the Hackclub Scrapyard Hackathon on the 15th of March 2025.
 
 ![https://github.com/snej55/explosive-lawn-mower/blob/master/screenshot0.png](https://github.com/snej55/explosive-lawn-mower/blob/master/Screenshot%202025-03-15%20194840.png)
+
+## How does it work?
+
+It was made using python and pygame-ce, with pymunk for the physics, and uses spritestacks to create a 3d effect for the objects in the game. It uses a tile based system to cache and render the grass, allowing the world to contain over 400,000 blades of grass!
 
 ## Play (Easy):
 
